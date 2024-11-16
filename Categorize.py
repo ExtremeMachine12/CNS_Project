@@ -3,22 +3,23 @@ File to categorize attack prompts into separate csvs
 """
 import csv
 import os
+import pandas as pd
 
 categories = {
-    'Malware': ['script', 'exploit', 'antivirus', 'malware', 'botnet', 'viruses'],
-    'Hacking': ['hack', 'hacking', 'crack', 'cyber attack'],
-    'Weaponry': ['firearms', 'bomb', 'explosive', 'weapon', 'mass'],
-    'Violence': ['assassinate', 'poison', 'harm', 'violence', 'war', 'kill', 'assault', 'suicide',
+    'malware': ['script', 'exploit', 'antivirus', 'malware', 'botnet', 'viruses'],
+    'hacking': ['hack', 'hacking', 'crack', 'cyber attack'],
+    'weaponry': ['firearms', 'bomb', 'explosive', 'weapon', 'mass'],
+    'violence': ['assassinate', 'poison', 'harm', 'violence', 'war', 'kill', 'assault', 'suicide',
                  'terrorist', 'fire', 'torture', 'violent', 'shooting', 'child'],
-    'Misinformation or Manipulation': ['trick', 'manipulate', 'incites', 'promotes', 'false',
+    'misinformation_or_manipulation': ['trick', 'manipulate', 'incites', 'promotes', 'false',
                                        'fake', 'propaganda', 'misinformation', 'radicalization',
                                        'social media', 'hoax'],
-    'Theft': ['steal', 'theft', 'stealing', 'scam', 'rob', 'phishing'],
-    'Financial Crime': ['stock', 'insider', 'trading', 'counterfeit', 'money', 'fraud', 'financial', 'taxes'],
-    'Illegal Drugs': ['drugs'],
-    'Harassment': ['cyberbully', 'stalk', 'bullying', 'bully', 'harass', 'cyberbullies'],
-    'Cheating': ['cheat', 'cheating'],
-    'Public Disorder': ['evade', 'hit and run', 'transportation']
+    'theft': ['steal', 'theft', 'stealing', 'scam', 'rob', 'phishing'],
+    'financial_crime': ['stock', 'insider', 'trading', 'counterfeit', 'money', 'fraud', 'financial', 'taxes'],
+    'illegal_drugs': ['drugs'],
+    'harassment': ['cyberbully', 'stalk', 'bullying', 'bully', 'harass', 'cyberbullies'],
+    'cheating': ['cheat', 'cheating'],
+    'public_disorder': ['evade', 'hit and run', 'transportation']
 }
 
 output_dir = "script_filtered_categorized_prompts"
@@ -41,20 +42,17 @@ with open('harmful_behaviors.csv', mode='r') as file:
 
     # Process each line in the CSV
     for line in csv_reader:
-        sentence = line[0]
-        category = categorize_sentence(sentence)
+        prompt = line[0]
+        category = categorize_sentence(prompt)
 
-        # Append the sentence to the appropriate category list
+        # Append the prompt to the appropriate category list. Line 1 has commas in it, so we need to append it as a string
         if category not in categorized_data:
             categorized_data[category] = []
-        categorized_data[category].append(sentence+','+line[1])
+        categorized_data[category].append([prompt, line[1]])
 
-    # Write each category to its own CSV file
     for category, sentences in categorized_data.items():
-        output_file = os.path.join(output_dir, f"{category}.csv")
-        with open(output_file, mode='w', newline='') as outfile:
-            writer = csv.writer(outfile)
-            for sentence in sentences:
-                writer.writerow([sentence])
-
+        # Create a dataframe from the sentences
+        df = pd.DataFrame(sentences, columns=["goal", "target"])
+        df.to_csv(os.path.join(output_dir, f"{category}.csv"), index=False)
+        
 print("Sentences have been categorized and written to CSV files by category.")
