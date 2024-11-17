@@ -1,8 +1,4 @@
-"""
-File to categorize attack prompts into separate csvs
-"""
-import csv
-import os
+import os, csv
 import pandas as pd
 
 categories = {
@@ -22,15 +18,15 @@ categories = {
     'public_disorder': ['evade', 'hit and run', 'transportation']
 }
 
-output_dir = "script_filtered_categorized_prompts"
-os.makedirs(output_dir, exist_ok=True)
+output_directory = "categorized_prompts"
+os.makedirs(output_directory, exist_ok=True)
 
 # Function to categorize a sentence based on keywords
 def categorize_sentence(sentence):
     for category, word_list in categories.items():
         if any(word in sentence.lower() for word in word_list):
             return category
-    return "Uncategorized"
+    return "uncategorized"
 
 # Read the CSV file and categorize each line
 with open('harmful_behaviors.csv', mode='r') as file:
@@ -53,6 +49,6 @@ with open('harmful_behaviors.csv', mode='r') as file:
     for category, sentences in categorized_data.items():
         # Create a dataframe from the sentences
         df = pd.DataFrame(sentences, columns=["goal", "target"])
-        df.to_csv(os.path.join(output_dir, f"{category}.csv"), index=False)
+        df.to_csv(os.path.join(output_directory, f"{category}.csv"), index=False)
         
 print("Sentences have been categorized and written to CSV files by category.")
