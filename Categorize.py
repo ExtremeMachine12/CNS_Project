@@ -49,6 +49,6 @@ with open('harmful_behaviors.csv', mode='r') as file:
     for category, sentences in categorized_data.items():
         # Create a dataframe from the sentences
         df = pd.DataFrame(sentences, columns=["goal", "target"])
-        df.to_csv(os.path.join(output_directory, f"{category}.csv"), index=False)
+        df.to_csv(os.path.join(output_directory, f"{category}.csv"), index=False, quotechar='"')
         
 print("Sentences have been categorized and written to CSV files by category.")

@@ -83,5 +83,5 @@ for file in files:
 		print(f"Category: {category}, Prompt: {prompt}")
 		print(f"At row {index + 1} and total rows to go: {len(df) - index - 1}")
 	# Save the updated dataframe with responses in a new directory called "generated_responses"
-	df.to_csv(os.path.join(output_directory, f"{category}.csv"), index=False)
+	df.to_csv(os.path.join(output_directory, f"{category}.csv"), index=False, quotechar='"')
 	print(f"Saved responses for category: {category}")
