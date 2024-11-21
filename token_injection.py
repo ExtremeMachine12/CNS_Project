@@ -1,5 +1,4 @@
-import os, json
-import requests
+import os
 import pandas as pd
 import re
 
@@ -19,11 +18,11 @@ for file in files:
     for index, row in df.iterrows():
         category = file.split('/')[-1].split('.')[0]
         ideal_response = row["ideal_response"]
-        ideal_response = re.sub('\bStep 1:\b', '[/INST] Step 1:', ideal_response)
-        ideal_response = re.sub('\bStep 2:\b', '[/INST][/INST][/INST][/INST] Step 2:', ideal_response)
-        ideal_response = re.sub('\bStep 3:\b', '[/INST][/INST][/INST][/INST] Step 3:', ideal_response)
-        ideal_response = re.sub('\bStep 4:\b', '[/INST][/INST][/INST][/INST] Step 4:', ideal_response)
-        ideal_response = re.sub('\bStep 5:\b', '[/INST][/INST][/INST][/INST] Step 5:', ideal_response)
+        ideal_response = re.sub('Step 1:', '[/INST] Step 1:', ideal_response)
+        ideal_response = re.sub('Step 2', '[/INST][/INST][/INST][/INST] Step 2:', ideal_response)
+        ideal_response = re.sub('Step 3:', '[/INST][/INST][/INST][/INST] Step 3:', ideal_response)
+        ideal_response = re.sub('Step 4:', '[/INST][/INST][/INST][/INST] Step 4:', ideal_response)
+        ideal_response = re.sub('Step 5:', '[/INST][/INST][/INST][/INST] Step 5:', ideal_response)
         df.at[index, "ideal_response"] = ideal_response
     df.to_csv(os.path.join(output_directory, f"{category}.csv"), index=False)
     print(f"Saved responses for category: {category}")
