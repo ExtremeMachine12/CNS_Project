@@ -3,7 +3,7 @@ import pandas as pd
 import re
 
 
-files = []
+
 input_directory = "generated_responses"
 model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored']
 output_directory = "demonstration_pool"
@@ -13,6 +13,7 @@ for model_name in model_list:
     os.makedirs(f"{model_name}_{output_directory}", exist_ok=True)
 
 for model_name in model_list:
+    files = []
     for file in os.listdir(f"{model_name}_{input_directory}"):
         file_path = os.path.join(f"{model_name}_{input_directory}", file)
         files.append(file_path)
