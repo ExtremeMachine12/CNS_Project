@@ -83,12 +83,14 @@ for model_name in model_list:
         target_prompt = df['target'].sample(n=1).tolist
 
         for i in range(10):
+            print(f"Optimizing for {file.split('/')[-1]}: Iteration {i+1}")
             # Randomly sample 8 demonstrations
             random_samples = df['ideal_response'].sample(n=8).tolist() # sample 8 demonstrations since 8 shots
             # Randlomly sample a target prompt
             target_prompt = df['target'].sample(n=1).tolist
             # Calculate the loss
             loss_value = calculate_prompt_loss(random_samples, target_prompt, model, tokenizer)
+            print(f"Loss: {loss_value}")
             if loss_value < Loss_min:
                 Loss_min = loss_value
                 best_demos_so_far = random_samples
