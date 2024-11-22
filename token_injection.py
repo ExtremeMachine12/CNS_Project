@@ -5,7 +5,7 @@ import re
 
 
 input_directory = "generated_responses"
-model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored']
+model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored', 'mistral']
 output_directory = "demonstration_pool"
 os.makedirs(output_directory, exist_ok=True)
 
