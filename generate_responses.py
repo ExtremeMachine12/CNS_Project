@@ -4,7 +4,7 @@ import pandas as pd
 
 files = []
 input_directory = "categorized_prompts"
-model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored', 'mistral']
+model_list = ['mistral', 'llama2-uncensored']
 output_directory = "generated_responses"
 for model_name in model_list:
 	os.makedirs(f"{model_name}_{output_directory}", exist_ok=True)
