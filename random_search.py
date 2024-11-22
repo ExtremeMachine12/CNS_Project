@@ -66,14 +66,7 @@ def calculate_prompt_loss(demonstrations, target_prompt, model, tokenizer):
 
    return loss.item()
 
-# Example usage
-demonstrations = [
-   "User: How do you make ice cream?\nAI: Sure, here is how you make ice cream...",
-   "User: How do you bake cookies?\nAI: Sure, here is how you bake cookies..."
-]
-new_question = "How do you make cake?"
-
-
+# Iterate over the demonstration pools for each model
 for model_name in model_list:
     files = []  # reset the file list for each model type
     for file in os.listdir(f"{model_name}_demonstration_pool"):
@@ -83,23 +76,25 @@ for model_name in model_list:
     for file in files:
         df = pd.read_csv(file)
         # Iterate and optimize on our loss function for 10 iterations:
-        df.sample()
-        for index, row in df.iterrows():
-            category = file.split('/')[-1].split('.')[0]
-            prompt = row["goal"]
-            initial_target_response = row["target"]
-            ideal_response = generate_ideal_response(prompt, initial_target_response, current_model)
-            # send the
-            # malicious prompt plus the start of the target response to our API call function
-            df.at[index, "ideal_response"] = ideal_response
-            print(f"Current Model: {current_model}, Category: {category}, Prompt: {prompt}")
-            print(f"At row {index + 1} and total rows to go: {len(df) - index - 1}")
-        df.to_csv(os.path.join(f"{model_name}_{output_directory}", f"{category}.csv"),
-                  index=False, quotechar='"')
-        print(f"Saved responses for category: {category}")
+        Loss_min = float('inf')
+        best_demos_so_far = []
 
-# Calculate the loss
-loss_value = calculate_prompt_loss(demonstrations, target_prompt, model, tokenizer)
-print(f"Prompt Engineering Loss: {loss_value:.4f}")
+        # Randlomly sample a target prompt from the current category
+        target_prompt = df['target'].sample(n=1).tolist
 
+        for i in range(10):
+            # Randomly sample 8 demonstrations
+            random_samples = df['ideal_response'].sample(n=8).tolist() # sample 8 demonstrations since 8 shots
+            # Randlomly sample a target prompt
+            target_prompt = df['target'].sample(n=1).tolist
+            # Calculate the loss
+            loss_value = calculate_prompt_loss(random_samples, target_prompt, model, tokenizer)
+            if loss_value < Loss_min:
+                Loss_min = loss_value
+                best_demos_so_far = random_samples
 
+        # Save the best demonstrations using pandas
+        best_demos_df = pd.DataFrame(best_demos_so_far, columns=["ideal_response"])
+        #save in a csv file
+        best_demos_df.to_csv(os.path.join(f"RS_Demo_Pool/{model_name}", f"{file.split('/')[-1]}"), index=False, quotechar='"')
+        print(f"Best demonstrations for {file.split('/')[-1]} saved successfully!")
