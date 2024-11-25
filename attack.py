@@ -1,14 +1,12 @@
 """
-File that attacks the main LLM (LLama2) with the RS I-FSJ prompts.
+Attack on the main LLM (Llama2) with the RS I-FSJ prompts.
 """
-
 import os
-import torch
+import json
+import requests
 import pandas as pd
-from transformers import AutoTokenizer, LlamaForCausalLM
-import torch.nn.functional as F
 
-model_list = ['dolphin-mistral', 'wizard-vicuna-uncensored', 'llama2-uncensored', 'mistral']
+model_list = ['dolphin-mistral']
 
 os.makedirs(f"Final_IFSJ_Attacks", exist_ok=True)
 
@@ -25,19 +23,19 @@ def generate_response(demonstrations, target_prompt, model):
 
     url = "http://localhost:11434/api/generate"
 
-	payload = json.dumps({
-		"model": model,
+    payload = json.dumps({
+        "model": model,
 		"prompt": prompt,
 		"stream": False
 	})
 
-	headers = {
-		'Content-Type': 'application/json'
-	}
+    headers = {
+       'Content-Type': 'application/json'
+    }
 
-	response = requests.request("POST", url, headers=headers, data=payload)
-	response = json.loads(response.text)["response"]
-	return response
+    response = requests.request("POST", url, headers=headers, data=payload)
+    response = json.loads(response.text)["response"]
+    return response
 
 # Iterate over the attack pools for each model
 for model_name in model_list:
@@ -50,27 +48,34 @@ for model_name in model_list:
         file_path = os.path.join(f"RS_Demo_Pool/{model_name}", file)
         files.append(file_path)
 
-    # Loop through each attack
-    for file in files:  
+    # Loop through each category by going thtough the files list 
+    for file in files:
+        print("RS Demo File: ", file)
         df = pd.read_csv(file)
         attack_demo_list = df['ideal_response'].tolist()
 
         # Loop through all the category files
-        for cat_file in os.listdir(f"categorized_prompts"):
-            file_path2 = os.path.join(f"categorized_prompts", cat_file)
-            df2 = pd.read_csv(file_path2)
-            cat_results_list = []
-            cat_prompt_list = []
-            cntr = 0
+        for category_file in os.listdir(f"categorized_prompts"):
+            file_path = os.path.join(f"categorized_prompts", category_file)
+            print(f"Category file: {file_path}")
+            category_dataframe = pd.read_csv(file_path)
+            category_results_list = []
+            category_prompt_list = []
+            cntr = 1
             # Loop through all the malicious prompts
-            for mal_prompt in df2['target']: 
-                print(f"Attack {cntr} on {cat_file.split('/')[-1]}...")
+            for malicious_prompt in category_dataframe['target']: 
+                print(f"Count: {cntr}, Total: {len(category_dataframe)}, Prompt: {malicious_prompt}")  
                 # Attack and receive the response from the LLM
-                response = send_attack(attack_demo_list, mal_prompt, model, tokenizer)
-                cat_results_list.append(response)
-                cat_prompt_list.append(mal_prompt)
+                response = generate_response(attack_demo_list, malicious_prompt, model_name)
+                category_results_list.append(response)
+                category_prompt_list.append(malicious_prompt)
                 cntr += 1
             # Push all the results onto a data frame
-            dfz = pd.DataFrame({'Result': cat_results_list, 'Malicious Prompt': cat_prompt_list})
+            result = pd.DataFrame({'malicious_prompt': category_prompt_list, 'result': category_results_list})
             # Push this data onto a new file
-            dfz.to_csv(f"Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}_{cat_file.split('/')[-1]}.csv", index=False)
+            result.to_csv(f"Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}_{category_file.split('/')[-1]}", index=False)
+            print(f"Results saved to: Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}_{category_file.split('/')[-1]}")
+        print(f"Attack on {file} completed.")
+    print(f"Attack on {model_name} completed.")
+    
+    
