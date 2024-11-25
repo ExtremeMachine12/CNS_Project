@@ -9,16 +9,12 @@ import pandas as pd
 from transformers import AutoTokenizer, LlamaForCausalLM
 import torch.nn.functional as F
 
-demo_list = ["dolphin-mistral_demonstration_pool", 'wizard-vicuna-uncensored_demonstration_pool',
-              'llama2-uncensored_demonstration_pool']
-model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored']
+model_list = ['dolphin-mistral', 'wizard-vicuna-uncensored', 'llama2-uncensored', 'mistral']
 
 os.makedirs(f"Final_IFSJ_Attacks", exist_ok=True)
 
 for model_name in model_list:
     os.makedirs(f"Final_IFSJ_Attacks/{model_name}", exist_ok=True)
-
-
 
 model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
@@ -69,3 +65,6 @@ for model_name in model_list:
             dfz.to_csv(os.path.join(f"Final_IFSJ_Attacks/{model_name}/{file}_demonstration/",
                                     f"{cat_file.split('/')[-1]}"))
             print(f"Results for {file.split('/')[-1]} attack on {cat_file.split('/')[-1]} saved successfully!")
+        # print success message
+        print(f"Attack on {file.split('/')[-1]} completed successfully!")
+    print(f"Attack on {model_name} completed successfully!")

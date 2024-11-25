@@ -8,7 +8,7 @@ import pandas as pd
 from transformers import AutoTokenizer, LlamaForCausalLM
 import torch.nn.functional as F
 
-model_list = ['llama2-uncensored', 'mistral']
+model_list = ['mistral']
 
 os.makedirs(f"RS_Demo_Pool", exist_ok=True)
 
@@ -87,3 +87,4 @@ for model_name in model_list:
         #save in a csv file
         best_demos_df.to_csv(os.path.join(f"RS_Demo_Pool/{model_name}", f"{file.split('/')[-1]}"), index=False, quotechar='"')
         print(f"Best demonstrations for {file.split('/')[-1]} saved successfully!")
+    print(f"Optimization for {model_name} complete!")
