@@ -8,14 +8,12 @@ import pandas as pd
 from transformers import AutoTokenizer, LlamaForCausalLM
 import torch.nn.functional as F
 
-demo_list = ["dolphin-mistral_demonstration_pool", 'wizard-vicuna-uncensored_demonstration_pool',
-              'llama2-uncensored_demonstration_pool']
 model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored']
 
 os.makedirs(f"RS_Demo_Pool", exist_ok=True)
 
 for model_name in model_list:
-	os.makedirs(f"RS_Demo_Pool/{model_name}", exist_ok=True)
+    os.makedirs(f"RS_Demo_Pool/{model_name}", exist_ok=True)
 
 
 
@@ -25,46 +23,35 @@ tokenizer.pad_token = tokenizer.eos_token
 model.eval()
 
 def calculate_prompt_loss(demonstrations, target_prompt, model, tokenizer):
+    """
+
+    Args:
+        demonstrations: A randomly sampled list of 8 I-FSJs
+        target_prompt: The test prompt we are testing against
+        model: Just LLama2
+        tokenizer: An object which can turn the input into tokens compatible with the Llama model
+
+    Returns:
+         Loss value, aka how far away the model is from generating "Step" as the first token
    """
-   Calculate the loss based on the probability that the first token of the AI's response is 'Sure'.
+    prompt = "\n".join(demonstrations) + f"{target_prompt}"  # make the input the entire script
+    # of demonstrations plus the target prompt
 
-   Parameters:
-   - demonstrations: List of prompt engineering demonstrations.
-   - new_question: The new question for the AI.
-   - expected_start: The expected first word of the AI's response (e.g., "Sure").
-   - model: Language model to evaluate.
-   - tokenizer: Corresponding tokenizer for the model.
+    # Tokenize the prompt
+    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
 
-   Returns:
-   - loss: Scalar loss (based on the log-probability of the expected token being 'Sure').
-   """
-   # Combine demonstrations and new question into a single prompt
-   prompt = "\n".join(demonstrations) + f"{target_prompt}"
+    with torch.no_grad():  # reduces memory consumptions
+        outputs = model(**inputs)
+        logits = outputs.logits  # get the logit values
 
-   # Tokenize the prompt
-   inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+    step_token_id = tokenizer.encode("Step")[0]  # tokenize the word step
+    first_token_logits = logits[0, 0, :]  # Get logit for first token
+    probs = F.softmax(first_token_logits, dim=0)
+    step_token_prob = probs[step_token_id].item()
 
-   # Get the logits from the model
-   with torch.no_grad():
-       outputs = model(**inputs, labels=inputs["input_ids"])
-       logits = outputs.logits  # [batch_size, seq_length, vocab_size]
+    loss = -torch.log(torch.tensor(step_token_prob))  # Negative log-likelihood
 
-   # The first token we want to check for is "Sure"
-   sure_token_id = tokenizer.encode("Sure")[0]
-
-   # Extract the logits for the first token (the AI's response start)
-   first_token_logits = logits[0, -1, :]  # Get logits for the last token (model's prediction)
-
-   # Convert logits to probabilities using softmax
-   probs = F.softmax(first_token_logits, dim=-1)
-
-   # Get the probability of the "Sure" token being the first token
-   sure_token_prob = probs[sure_token_id].item()
-
-   # Calculate the negative log-likelihood loss (binary cross-entropy)
-   loss = -torch.log(torch.tensor(sure_token_prob))  # Negative log-likelihood
-
-   return loss.item()
+    return loss.item()
 
 # Iterate over the demonstration pools for each model
 for model_name in model_list:
@@ -87,7 +74,7 @@ for model_name in model_list:
             # Randomly sample 8 demonstrations
             random_samples = df['ideal_response'].sample(n=8).tolist() # sample 8 demonstrations since 8 shots
             # Randlomly sample a target prompt
-            target_prompt = df['target'].sample(n=1).tolist
+            target_prompt = df['target'].sample(n=1).tolist()
             # Calculate the loss
             loss_value = calculate_prompt_loss(random_samples, target_prompt, model, tokenizer)
             print(f"Loss: {loss_value}")
