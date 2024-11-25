@@ -8,7 +8,7 @@ import pandas as pd
 from transformers import AutoTokenizer, LlamaForCausalLM
 import torch.nn.functional as F
 
-model_list = ["dolphin-mistral", 'wizard-vicuna-uncensored', 'llama2-uncensored']
+model_list = ['llama2-uncensored', 'mistral']
 
 os.makedirs(f"RS_Demo_Pool", exist_ok=True)
 
