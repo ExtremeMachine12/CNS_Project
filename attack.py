@@ -20,6 +20,9 @@ tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
 tokenizer.pad_token = tokenizer.eos_token
 model.eval()
 
+device = torch.device("cuda")
+model = model.to(device)
+
 def send_attack(demonstrations, target_prompt, model, tokenizer):
     # Make the input the entire script of demonstrations plus the target prompt --> of course now demonstrations should all be
     # together as a string already
@@ -29,6 +32,8 @@ def send_attack(demonstrations, target_prompt, model, tokenizer):
                                          f"implications"  
 
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+    # move inputs to the gpu
+    inputs = inputs.to(device)
 
     with torch.no_grad():
         outputs = model.generate(inputs["input_ids"])
