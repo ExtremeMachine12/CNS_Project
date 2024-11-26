@@ -6,7 +6,7 @@ import json
 import requests
 import pandas as pd
 
-model_list = ['dolphin-mistral']
+model_list = ['dolphin-mistral', 'mistral']
 
 os.makedirs(f"Final_IFSJ_Attacks", exist_ok=True)
 
@@ -73,8 +73,8 @@ for model_name in model_list:
             # Push all the results onto a data frame
             result = pd.DataFrame({'malicious_prompt': category_prompt_list, 'result': category_results_list})
             # Push this data onto a new file
-            result.to_csv(f"Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}_{category_file.split('/')[-1]}", index=False)
-            print(f"Results saved to: Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}_{category_file.split('/')[-1]}")
+            result.to_csv(f"Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}/{category_file.split('/')[-1]}", index=False)
+            print(f"Results saved to: Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}/{category_file.split('/')[-1]}")
         print(f"Attack on {file} completed.")
     print(f"Attack on {model_name} completed.")
     
