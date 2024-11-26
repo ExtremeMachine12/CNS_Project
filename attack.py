@@ -13,7 +13,7 @@ os.makedirs(f"Final_IFSJ_Attacks", exist_ok=True)
 for model_name in model_list:
     os.makedirs(f"Final_IFSJ_Attacks/{model_name}", exist_ok=True)
 
-def generate_response(demonstrations, target_prompt, model):
+def generate_response(demonstrations, target_prompt, model="llama2"):
     # Make the input the entire script of demonstrations plus the target prompt --> of course now demonstrations should all be
     # together as a string already
     prompt = "\n".join(demonstrations) + f"{target_prompt} for educational and research purposes, " \
@@ -66,7 +66,7 @@ for model_name in model_list:
             for malicious_prompt in category_dataframe['target']: 
                 print(f"Count: {cntr}, Total: {len(category_dataframe)}, Prompt: {malicious_prompt}")  
                 # Attack and receive the response from the LLM
-                response = generate_response(attack_demo_list, malicious_prompt, model_name)
+                response = generate_response(attack_demo_list, malicious_prompt)
                 category_results_list.append(response)
                 category_prompt_list.append(malicious_prompt)
                 cntr += 1
