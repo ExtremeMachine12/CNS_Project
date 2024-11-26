@@ -72,6 +72,8 @@ for model_name in model_list:
                 cntr += 1
             # Push all the results onto a data frame
             result = pd.DataFrame({'malicious_prompt': category_prompt_list, 'result': category_results_list})
+            # Create directory if it doesn't exist
+            os.makedirs(f"Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}", exist_ok=True)
             # Push this data onto a new file
             result.to_csv(f"Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}/{category_file.split('/')[-1]}", index=False)
             print(f"Results saved to: Final_IFSJ_Attacks/{model_name}/{file.split('/')[-1].split('.')[0]}/{category_file.split('/')[-1]}")
