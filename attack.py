@@ -6,7 +6,7 @@ import json
 import requests
 import pandas as pd
 
-model_list = ['mistral', 'dolphin-mistral']
+model_list = ['dolphin-mistral']
 
 os.makedirs(f"Final_IFSJ_Attacks", exist_ok=True)
 
