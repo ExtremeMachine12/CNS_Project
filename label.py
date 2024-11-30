@@ -2,8 +2,6 @@
 Helps label the 20,000 data points
 """
 import os
-import json
-import requests
 import pandas as pd
 
 if True:  # don't run this again beacuse we are manually updating labels after running this
